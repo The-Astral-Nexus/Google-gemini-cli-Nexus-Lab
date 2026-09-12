@@ -1,0 +1,62 @@
+name: Kailos CCRB-8 Controlled Gemini Experiment v1.1
+
+on:
+  workflow_dispatch:
+    inputs:
+      model:
+        description: Gemini model to test
+        required: true
+        default: gemini-3.6-flash
+        type: string
+      trials:
+        description: Paired trials per condition (1-50)
+        required: true
+        default: '12'
+        type: string
+      prompt:
+        description: Optional shared experiment prompt
+        required: false
+        default: ''
+        type: string
+
+jobs:
+  controlled-experiment:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    permissions:
+      contents: read
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run controlled CCRB-8 experiment
+        env:
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          GEMINI_MODEL: ${{ inputs.model }}
+          KAILOS_TRIALS: ${{ inputs.trials }}
+          KAILOS_TEST_PROMPT: ${{ inputs.prompt }}
+        run: |
+          if [ -z "$GEMINI_API_KEY" ]; then
+            echo "GEMINI_API_KEY repository secret is missing."
+            exit 1
+          fi
+          npx tsx experiments/kailos-gemini-effects/v1.1.0/run-ccrb8-controlled.ts
+
+      - name: Upload controlled experiment results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ccrb8-controlled-results-${{ github.run_id }}
+          path: experiments/kailos-gemini-effects/v1.1.0/results/
+          if-no-files-found: warn
+          retention-days: 30
