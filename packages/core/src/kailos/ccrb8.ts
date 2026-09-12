@@ -6,7 +6,7 @@
  *
  * This runs inside the Gemini CLI application/runtime. It does NOT modify
  * Gemini's proprietary transformer weights. When enabled, the representation
- * is injected into the Gemini request as experimental system context.
+ * can be supplied to Gemini as experimental system context.
  */
 
 export const KAILOS_ROLES = [
@@ -20,7 +20,8 @@ export const KAILOS_DIMENSION = 4096;
 interface Complex { re: number; im: number }
 
 function normalizeL2(v: number[]): number[] {
-  const norm = Math.hypot(...v);
+  const squaredNorm = v.reduce((sum, x) => sum + x * x, 0);
+  const norm = Math.sqrt(squaredNorm);
   if (!Number.isFinite(norm) || norm < 1e-12) {
     throw new Error('Cannot normalize a near-zero vector.');
   }
@@ -108,10 +109,9 @@ export function bind8CanonicalRoles(roleVectors: number[][]): number[] {
 }
 
 /**
- * Experimental deterministic bridge from the user's prompt into eight
- * 4096-D vectors. It is intentionally labelled non-semantic: this lets us
- * isolate the effect of the binding mechanism without claiming that a hash
- * function is an embedding model.
+ * Experimental deterministic bridge from the prompt into eight 4096-D role
+ * vectors. It is intentionally labelled non-semantic so the experiment does
+ * not falsely attribute semantic understanding to a hash function.
  */
 export function textToRoleVector(text: string, role: KailosRole): number[] {
   const vector = new Array<number>(KAILOS_DIMENSION).fill(0);
