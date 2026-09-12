@@ -1,0 +1,56 @@
+name: Kailos CCRB-8 Gemini Experiment
+
+on:
+  workflow_dispatch:
+    inputs:
+      model:
+        description: Gemini model to test
+        required: true
+        default: gemini-2.5-flash
+        type: string
+      prompt:
+        description: Optional experiment prompt
+        required: false
+        default: ''
+        type: string
+
+jobs:
+  ccrb8-experiment:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    permissions:
+      contents: read
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run CCRB-8 Gemini experiment
+        env:
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          GEMINI_MODEL: ${{ inputs.model }}
+          KAILOS_TEST_PROMPT: ${{ inputs.prompt }}
+        run: |
+          if [ -z "$GEMINI_API_KEY" ]; then
+            echo "GEMINI_API_KEY repository secret is missing."
+            exit 1
+          fi
+          npx tsx experiments/kailos-gemini-effects/v1.0.0/run-ccrb8-gemini.ts
+
+      - name: Upload CCRB-8 results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ccrb8-gemini-results-${{ github.run_id }}
+          path: experiments/kailos-gemini-effects/v1.0.0/results/
+          if-no-files-found: warn
+          retention-days: 30
