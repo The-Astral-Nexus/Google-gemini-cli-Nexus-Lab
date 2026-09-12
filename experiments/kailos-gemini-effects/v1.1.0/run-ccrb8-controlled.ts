@@ -98,7 +98,8 @@ const ccrb8 = bind8CanonicalRoles(roleVectors);
 const results: Array<Awaited<ReturnType<typeof call>>> = [];
 
 for (let trial = 1; trial <= trials; trial++) {
-  const randomVector = seededRandomVector(0xCCRB8000 + trial);
+  // Hexadecimal seed constant; keep this numeric literal valid TypeScript.
+  const randomVector = seededRandomVector(0xCC8B8000 + trial);
   const order = shuffled(CONDITIONS, 0xA11CE000 + trial);
   for (const condition of order) {
     const context = contextFor(condition, ccrb8, randomVector);
