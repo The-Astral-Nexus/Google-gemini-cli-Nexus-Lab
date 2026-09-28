@@ -52,3 +52,12 @@ Execution remains disabled until: repository controls are verified; automation c
 
 ## Subagent architecture candidate
 A coordinator should delegate read-only analysis to specialized agents: Workflow Sentinel, AI/Prompt Boundary Auditor, Supply-Chain Auditor, Credential/Identity Auditor, Release-Authority Auditor, Artifact/Telemetry Forensics Auditor, and Dependency/SBOM Auditor. A separate Evidence Custodian should hash and reconcile outputs. No analysis subagent should possess repository write authority; remediation remains a separately authorized human-controlled lane.
+
+## Current execution status — 2026-09-28
+- Epochs 1–18: investigated at repository/control-plane level.
+- Epoch 19: partially investigated; current GitHub advisory correlation completed for run-gemini-cli, but full dependency/SBOM advisory correlation requires dependency-alert/API coverage or offline package analysis.
+- Epoch 20: architecture/tooling/subagent requirements identified.
+- Epoch 21: final reconciliation remains open until remaining execution surfaces, historical artifacts/logs, credentials, branch protections and dependency state are independently verified.
+- No code execution was performed during this investigation.
+- No secret values were accessed.
+- Main branch was not modified by this investigation.
