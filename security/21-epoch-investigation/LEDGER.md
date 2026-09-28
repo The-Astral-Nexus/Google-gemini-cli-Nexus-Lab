@@ -63,3 +63,58 @@ Epochs 9–21: pending deeper file-by-file and historical dynamic evidence analy
 3. Verify branch protection/rulesets outside the current integration boundary.
 4. Inventory all 49 workflows and local actions for exact permissions, triggers, secret flow, and command injection.
 5. Inspect historical run jobs/logs/artifacts for credential exposure and unexpected actors.
+
+## Entry 009 — Action advisory correlation
+- External GitHub advisory review confirmed GHSA-wpqr-6v78-jr5g affects run-gemini-cli versions below 0.1.22 and documents headless workspace trust/tool allowlisting RCE risk. The repository's pinned SHA must be independently mapped to a patched release before re-enable.
+- Source: GitHub Advisory Database. No claim of exploitation was made.
+
+## Entry 010 — Release authority inspection
+- Inspected local composite actions.
+- Observed create-pull-request performs automatic merge via `gh pr merge --auto`.
+- Observed publish-release can push branches, publish packages, tag releases and create GitHub releases using supplied credentials.
+- Observed setup-npmrc writes a GitHub token to ~/.npmrc.
+- Observed verify-release installs from npm/npx and executes integration tests with Gemini credentials.
+- Observed push-docker disables provenance metadata and push-sandbox accepts Docker Hub R/W credentials.
+
+## Entry 011 — Cloud execution-plane inspection
+- Observed .gcp Cloud Build definitions independently execute dependency installation, authentication, builds and Docker pushes.
+- Therefore GitHub Actions quarantine is not a complete repository execution-plane quarantine.
+
+## Entry 012 — AI trust-surface inspection
+- .gemini contains commands, skills and settings.
+- 32 skill blobs were counted; 4 executable-mode files.
+- Experimental settings include extension reloading, model steering, auto memory, voice mode, devtools and noninteractive agent sessions.
+- GEMINI.md is repository-controlled agent context and documents shell/file/MCP/automation capabilities.
+
+## Entry 013 — Executable-mode census
+- scripts/: 83 blobs, 9 executable.
+- .github/scripts/: 8 blobs, 1 executable.
+- .gemini/skills/: 32 blobs, 4 executable.
+- No executable mode was observed in .github/actions.
+
+## Entry 014 — Workflow/event threat model
+- 49 workflow files were enumerated.
+- Observed pull_request_target, workflow_run, issue_comment, repository_dispatch, scheduled, manual and release triggers.
+- Observed chained_e2e write-all, Gemini issue/PR automation, release workflows and secret-bearing workflows.
+- These create multiple independent paths from untrusted repository/issue input to privileged automation.
+
+## Entry 015 — Historical execution evidence
+- Actions API reported 724 workflow runs.
+- Latest sampled scheduled runs were startup_failure.
+- Historical execution volume is substantial enough to require systematic logs/artifacts review before declaring the execution plane clean.
+
+## Entry 016 — Commit provenance
+- Latest user-authored CCRB/Kailos commits are unsigned/unverified.
+- Adjacent upstream Gemini CLI security-hardening commits are cryptographically verified.
+- This is a provenance weakness, not evidence of malicious authorship.
+
+## Entry 017 — Repository governance
+- Repository metadata: public, unarchived, fork.
+- Rulesets endpoint returned empty.
+- Branch-protection endpoint is inaccessible to this integration (403), so enforcement remains UNVERIFIED.
+- .allstar/branch_protection.yaml only logs.
+
+## Entry 018 — SOP/tooling/subagent requirements
+- Added SOP, ledger and findings artifacts to the quarantine branch.
+- Identified need for repository-admin API coverage, workflow AST/data-flow analysis, action provenance/advisory correlation, artifact/cache mapping, SBOM/dependency analysis, AI prompt/skill/MCP trust scanning, immutable evidence custody, and isolated dynamic-analysis execution.
+- Recommended read-only specialist subagents with no write authority, coordinated by an evidence custodian.
